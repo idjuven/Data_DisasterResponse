@@ -32,7 +32,7 @@ def clean_data(df):
     
     #select the first row of categories data
     row = categories.iloc[0]
-    category_colnames = map(lambda x: x.split('-')[0], row)
+    category_colnames = list(map(lambda x: x.split('-')[0], row))
     
     #rename the columns of 'categories'
     categories.columns = category_colnames
@@ -40,22 +40,28 @@ def clean_data(df):
     #Convert category values to just number 0 and 1
     for column in categories:
         # set each value to be the last character of the string
-        categories[column] = categories[column].astype(str).str[-1]
+        #categories[column] = categories[column].astype(str).str[-1]
+        categories[column] = categories[column].apply(lambda x:x.split('-')[1])
     
         # convert column from string to numeric
-        categories[column] = pd.to_numeric(categories[column])
+        #categories[column] = pd.to_numeric(categories[column])
+        categories[column] = categories[column].astype(int)
+        
+        categories.loc[categories['related'] == 2,'related'] = 1
         
         #Replce "categories" in df with new column name
-        df = df.drop(['categories'], axis =1)
+        df = df.drop(['categories'], axis =1, inplace = True)
         
         # concatenate the original dataframe with the new `categories` dataframe
         df = pd.concat([categories, df], axis =1)
         
         # Remove duplicates
-        sum(df.duplicated(df.columns))
+        #sum(df.duplicated(df.columns))
         
         #drop duplicates
         df = df.drop_duplicates()
+        
+        return df
         
     
     pass
