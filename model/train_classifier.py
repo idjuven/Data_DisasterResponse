@@ -37,8 +37,8 @@ def load_data(database_filepath):
             y(pandas dataframe): Targets/Labels
     categories (list): List of categorical columns
     """
-    engine = create_engine('sqlite:///DisasterResponse.db')
-    df = pd.read_sql_table('DS_messages', engine)
+    engine = create_engine('sqlite:///' + data_filepath)
+    df = pd.read_sql_table('DS_message', engine)
     X = df['message']
     y = df[df.columns[5:]]
     categories = y.columns.tolist()
