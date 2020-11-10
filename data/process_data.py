@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 
-def load_data(messages_filepath = 'disaster_messages.csv', categories_filepath = 'disaster_categories.csv'):
+def load_data(messages_filepath, categories_filepath):
     """
     Load two data sets: messages and categories
     
@@ -17,9 +17,9 @@ def load_data(messages_filepath = 'disaster_messages.csv', categories_filepath =
     """
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
-    return messages.merge(categories, on =['id'])
-
+    return messages.merge(categories, on ='id')
     
+    return df
     pass
 
 
@@ -31,8 +31,10 @@ def clean_data(df):
     categories = df['categories'].str.split(';', expand = True)
     
     #select the first row of categories data
-    row = categories.iloc[0]
-    category_colnames = list(map(lambda x: x.split('-')[0], row))
+    #row = categories.iloc[0]
+    #category_colnames = list(map(lambda x: x.split('-')[0], row))
+    row = categories.iloc[0,:]
+    category_colnames = row.apply(lambda x:x[:len(x) - 2])
     
     #rename the columns of 'categories'
     categories.columns = category_colnames
@@ -45,9 +47,10 @@ def clean_data(df):
     
         # convert column from string to numeric
         #categories[column] = pd.to_numeric(categories[column])
-        categories[column] = categories[column].astype(int)
+        #categories[column] = categories[column].astype(int)
         
-        categories.loc[categories['related'] == 2,'related'] = 1
+        #categories.loc[categories['related'] == 2,'related'] = 1
+        categories[column] = pd.to_numeric(categories[column].astype(str).str[-1])
         
         #Replce "categories" in df with new column name
         df = df.drop(['categories'], axis =1, inplace = True)
@@ -80,7 +83,7 @@ def save_data(df, database_filename):
     
     #save the clean dataset into an sqlite database
     
-    engine = create_engine('sqlite:///DisasterResponse.db')
+    engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('DS_message', engine, index=False, if_exists = 'replace')
     pass  
 
